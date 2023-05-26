@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Custom VPC Creation With Private and Public Subnet
+Parameters:
+  AzureIssuer:
+    Description: Azure App issuer. This is called the Tenant in Azure
+    Type: String
+    Default: 'https://login.microsoftonline.com/c0dc2369-a446-4608-bdda-d5d5664956f1/v2.0'  
+  AzureAuthorizationEndpoint:
+    Description: Azure Authorization Endpoint from Azure AD App
+    Type: String
+    Default: 'https://login.microsoftonline.com/c0dc2369-a446-4608-bdda-d5d5664956f1/oauth2/v2.0/authorize'
+  AzureTokenEndPoint:
+    Description: Azure AD Token Endpoint from Azure AD App
+    Type: String
+    Default: 'https://login.microsoftonline.com/c0dc2369-a446-4608-bdda-d5d5664956f1/oauth2/v2.0/token' 
+  AzureUserInfoEndPoint:
+    Description: Azure AD User Info Endpoint
+    Type: String
+    Default: 'https://graph.microsoft.com/oidc/userinfo' 
+  AzureClientId:
+    Description: Client ID from Azure AD Portal
+    Type: String
+    Default: '169c4180-7683-407d-a136-1186969277c0'   
+  AzureClientSecret:
+    Description: Client Secret from Azure AD Portal
+    Type: String
+    Default: 'vr08Q~t0er717XwsMcM~kczYa3rLpc6SPyDmVdtd'
+  TargetGroupArn:
+    Description: Target Group Arn to forward to from load balancer
+    Type: String
+    Default: ''
+  HostHeader:
+    Type: String
+    Default: 'www.dsegonzo.us'
+  Priority:
+    Type: String
+    Default: '1'
+  Listener:
+    Type: String
+    Default: ''
+Resources:  
+  ListenerRule1:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Priority: !Ref Priority  
+      ListenerArn: !Ref Listener
+      Conditions:
+        - Field: 'host-header'
+          Values:
+            - !Ref HostHeader
+      Actions:
+        - Type: 'authenticate-oidc' # 1. Authenticate with OICD
+          AuthenticateOidcConfig:
+            OnUnauthenticatedRequest: 'authenticate'
+            Issuer: !Ref AzureIssuer
+            AuthorizationEndpoint: !Ref AzureAuthorizationEndpoint
+            TokenEndpoint: !Ref AzureTokenEndPoint
+            UserInfoEndpoint: !Ref AzureUserInfoEndPoint
+            ClientId: !Ref AzureClientId
+            ClientSecret: !Ref AzureClientSecret
+          Order: 1
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroupArn
+          Order: 2

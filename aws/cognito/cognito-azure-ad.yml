@@ -1,0 +1,412 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Custom VPC Creation With Private and Public Subnet
+Parameters:
+  VPCName:
+    Description: CIDR range for our VPC
+    Type: String
+    Default: 'DemoCustomVPC'
+  VPCCidr:
+    Description: CIDR range for our VPC
+    Type: String
+    Default: 10.97.222.0/25
+  PrivateSubnetACidr:
+    Description: Private Subnet IP Range
+    Type: String
+    Default: 10.97.222.0/27
+  PrivateSubnetBCidr:
+    Description: Private Subnet IP Range
+    Type: String
+    Default: 10.97.222.32/27
+  PublicSubnetACidr:
+    Description: Public Subnet IP Range
+    Type: String
+    Default: 10.97.222.64/27
+  PublicSubnetBCidr:
+    Description: Public Subnet IP Range
+    Type: String
+    Default: 10.97.222.96/27
+  AvailabilityZoneA:
+    Description: Avaibalbility Zone 1
+    Type: String
+    Default: 'us-east-1a'
+  AvailabilityZoneB:
+    Description: Avaibalbility Zone 2
+    Type: String
+    Default: us-east-1b
+  PublicDomainName:
+    Type: String # the custom domain name (e.g., grafana.example.com)    
+    Default: azure.something.com
+Resources:
+  DemoVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !Ref VPCCidr
+      Tags:
+        - Key: Name
+          Value: !Ref VPCName
+  PrivateSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneA
+      CidrBlock: !Ref PrivateSubnetACidr
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PrivateSubnetA'
+  PrivateSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneB
+      CidrBlock: !Ref PrivateSubnetBCidr
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PrivateSubnetB'
+  PublicSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneA
+      CidrBlock: !Ref PublicSubnetACidr
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PublicSubnetA'
+  PublicSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneB
+      CidrBlock: !Ref PublicSubnetBCidr
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PublicSubnetB'
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref DemoVPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref DemoVPC
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnetRouteTableAssociationA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetRouteTableAssociationB:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnetB
+      RouteTableId: !Ref PublicRouteTable
+  ElasticIPA:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  ElasticIPB:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  NATGatewayA:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 
+        - ElasticIPA
+        - AllocationId
+      SubnetId: !Ref PublicSubnetA
+  NATGatewayB:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 
+        - ElasticIPB
+        - AllocationId
+      SubnetId: !Ref PublicSubnetB
+  PrivateRouteTableA:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref DemoVPC
+  PrivateRouteTableB:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref DemoVPC
+  PrivateRouteToInternetA:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableA
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGatewayA
+  PrivateRouteToInternetB:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableB
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGatewayB
+  PrivateSubnetRouteTableAssociationA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnetA
+      RouteTableId: !Ref PrivateRouteTableA
+  PrivateSubnetRouteTableAssociationB:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnetB
+      RouteTableId: !Ref PrivateRouteTableB
+  RstudioIAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Description: RstudioSSMRoleforlogginginviaSSM
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
+      RoleName: !Ref VPCName
+      Tags: 
+        - Key: Name
+          Value: RstudioIAMRolessm
+  RstudioInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref RstudioIAMRole         
+  DemoInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-0481e8ba7f486bd99 #ami-01d08089481510ba2
+      InstanceType: t3.micro
+      IamInstanceProfile: !Ref RstudioInstanceProfile
+      AvailabilityZone: !Ref AvailabilityZoneA
+      SubnetId: !Ref PublicSubnetA
+      KeyName: vpc-one
+      SecurityGroupIds:
+        - !Ref DemoSecurityGroup
+        - !Ref LBSecurityGroup
+      UserData: !Base64 
+        'Fn::Sub': |
+          #!/bin/bash
+          sudo apt-get update -y
+          sudo apt-get install nginx -y
+          sudo apt-get install r-base-core -y
+          sudo apt-get install r-base-dev -y
+      Tags:
+        - Key: Name
+          Value: !Ref VPCName
+  DemoSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref DemoVPC
+      GroupDescription: SG to allow SSH and HTTP
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0          
+      Tags:
+        - Key: Name
+          Value: EC2-SG
+  MyCertificate:
+    Type: "AWS::CertificateManager::Certificate"
+    Properties:
+      DomainName: '*.something.com'
+      ValidationMethod: EMAIL
+  LBSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref DemoVPC
+      GroupDescription: SG to allow HTTPS to LoadBalancer
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0          
+      Tags:
+        - Key: Name
+          Value: EC2-SG	            
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Ref VPCName
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref LBSecurityGroup
+      Subnets:
+        - !Ref PublicSubnetA
+        - !Ref PublicSubnetB
+###Creates record in Route53 that points back to load balancer        
+  AzureRecordSet:
+    Type: "AWS::Route53::RecordSet"
+    Properties:
+      HostedZoneId: <hosted-zone-id>
+      Name: "*.something.com"
+      Type: "A"
+      AliasTarget:
+        DNSName: !GetAtt ApplicationLoadBalancer.DNSName 
+        EvaluateTargetHealth: false
+        HostedZoneId: <hosted-zone-id>
+  Listener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      Certificates:
+      - CertificateArn: !Ref MyCertificate #'arn:aws:acm:us-east-1:098789448788:certificate/48cabe30-c89f-4517-9daf-293bc713bd15' #!Ref MyCertificate
+      DefaultActions:
+        - Type: 'fixed-response' # 1. Authenticate with OICD      
+          FixedResponseConfig:
+              ContentType: text/html
+              MessageBody: 'Incorrect path. Please try Again. Please contact the administrator of the site.'
+              StatusCode: 401
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 443
+      Protocol: 'HTTPS'        
+  ListenerRule1:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Priority: 1
+      ListenerArn: !Ref Listener
+      Conditions:
+        - Field: 'host-header'
+          Values:
+            - 'azure.something.com'    
+      Actions: 
+        # 1. Authenticate against Cognito User Pool
+        - Type: 'authenticate-cognito'
+          AuthenticateCognitoConfig:
+            OnUnauthenticatedRequest: 'authenticate' # Redirect unauthenticated clients to Cognito login page
+            Scope: 'openid'
+            UserPoolArn: !GetAtt 'UserPool.Arn'
+            UserPoolClientId: !Ref UserPoolClient
+            UserPoolDomain: !Ref UserPoolDomain
+          Order: 1
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+          Order: 2
+  TargetGroup:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      Name: !Ref VPCName
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      VpcId: !Ref DemoVPC
+      Targets:
+        - Id: !Ref DemoInstance
+          Port: 80
+  UserPool:
+    Type: 'AWS::Cognito::UserPool'
+    Properties:
+      UserPoolName: gonzous
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false # Disable self-registration
+        InviteMessageTemplate:
+          EmailSubject: !Sub '${AWS::StackName}: temporary password'
+          EmailMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
+          SMSMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
+      AutoVerifiedAttributes:
+      - email
+      UsernameAttributes:
+      - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 16
+          RequireLowercase: false
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 2
+      Schema:
+        - Name: gonzous
+          AttributeDataType: String
+  UserPoolDomain:
+  ###Provides Cognito Login Page
+    Type: 'AWS::Cognito::UserPoolDomain'
+    Properties:
+      UserPoolId: !Ref UserPool
+      Domain: 'gonzous' #!Select [2, !Split ['/', !Ref 'AWS::StackId']] # Generates a unique domain name
+  UserPoolIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      UserPoolId: !Ref UserPool
+      ProviderName: "gonzous"
+      ProviderDetails:
+        MetadataURL: "https://login.microsoftonline.com/<tenant-id>/federationmetadata/2007-06/federationmetadata.xml?appid=<app-id>"
+      ProviderType: "SAML"
+      AttributeMapping:
+        email: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,gonzous=http://schemas.microsoft.com/ws/2008/06/identity/claims/groups"      
+  UserPoolClient:
+    Type: 'AWS::Cognito::UserPoolClient'
+    DependsOn: UserPoolIdentityProvider
+    Properties:
+      AllowedOAuthFlows:
+      - code # Required for ALB authentication
+      AllowedOAuthFlowsUserPoolClient: true # Required for ALB authentication
+      AllowedOAuthScopes:
+      - email
+      - openid
+      CallbackURLs:
+      - !Sub https://${PublicDomainName}/oauth2/idpresponse # Redirects to the ALB
+      GenerateSecret: true
+      SupportedIdentityProviders: # Optional: add providers for identity federation
+      #- COGNITO
+      - gonzous
+      UserPoolId: !Ref UserPool          
+Outputs:      
+  VPCId:
+    Description: vpc id
+    Value: !Ref DemoVPC
+  PublicSubnetA:
+    Description: SubnetId of public subnet A
+    Value: !Ref PublicSubnetA
+  PublicSubnetB:
+    Description: SubnetId of public subnet B
+    Value: !Ref PublicSubnetB
+  PrivateSubnetA:
+    Description: SubnetId of private subnet A
+    Value: !Ref PrivateSubnetA
+  PrivateSubnetB:
+    Description: SubnetId of private subnet B
+    Value: !Ref PublicSubnetB
+  DemoInstanceId:
+    Description: Demo Instance Id
+    Value: !Ref DemoInstance
+  UserPoolCognitoDomain:
+    Description: Cognito domain
+    Value: !Ref UserPoolDomain
+  AzureIdentifierIdentityID:
+    Description: Value to put into the Azure Indentifier Identity ID
+    Value: !Join ['',['urn:amazon:cognito:sp:',!Ref UserPool]]
+  ReplyURLAssertionConsumerServiceURL:
+    Description: Reply URL for putting into Azure AD
+    Value: !Join ['',['https://',gonzous,'.auth.',!Ref AWS::Region,'.amazoncognito.com/saml']]

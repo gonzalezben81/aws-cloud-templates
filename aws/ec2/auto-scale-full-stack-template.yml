@@ -1,0 +1,606 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Custom VPC Creation With Private and Public Subnet
+Parameters:
+  VPCName:
+    Description: CIDR range for our VPC
+    Type: String
+    Default: DemoCustomVPC
+  ECSAMI:
+    Description: AMI ID
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id    
+  EC2LogGroup:
+    Description: ec2 log group name
+    Type: String
+    Default: Azure
+  VPCCidr:
+    Description: CIDR range for our VPC
+    Type: String
+    Default: 10.97.224.0/25
+  PrivateSubnetACidr:
+    Description: Private Subnet IP Range
+    Type: String
+    Default: 10.97.224.0/27
+  PrivateSubnetBCidr:
+    Description: Private Subnet IP Range
+    Type: String
+    Default: 10.97.224.32/27
+  PublicSubnetACidr:
+    Description: Public Subnet IP Range
+    Type: String
+    Default: 10.97.224.64/27
+  PublicSubnetBCidr:
+    Description: Public Subnet IP Range
+    Type: String
+    Default: 10.97.224.96/27
+  AvailabilityZoneA:
+    Description: Avaibalbility Zone 1
+    Type: String
+    Default: us-east-1a
+  AvailabilityZoneB:
+    Description: Avaibalbility Zone 2
+    Type: String
+    Default: us-east-1b
+Resources:
+  DemoVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !Ref VPCCidr
+      Tags:
+        - Key: Name
+          Value: !Ref VPCName
+  PrivateSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneA
+      CidrBlock: !Ref PrivateSubnetACidr
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PrivateSubnetA'
+  PrivateSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneB
+      CidrBlock: !Ref PrivateSubnetBCidr
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PrivateSubnetB'
+  PublicSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneA
+      CidrBlock: !Ref PublicSubnetACidr
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PublicSubnetA'
+  PublicSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref DemoVPC
+      AvailabilityZone: !Ref AvailabilityZoneB
+      CidrBlock: !Ref PublicSubnetBCidr
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${VPCName}-PublicSubnetB'
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref DemoVPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref DemoVPC
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnetRouteTableAssociationA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetRouteTableAssociationB:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnetB
+      RouteTableId: !Ref PublicRouteTable
+  ElasticIPA:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  ElasticIPB:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  NATGatewayA:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 
+        - ElasticIPA
+        - AllocationId
+      SubnetId: !Ref PublicSubnetA
+  NATGatewayB:
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt 
+        - ElasticIPB
+        - AllocationId
+      SubnetId: !Ref PublicSubnetB
+  PrivateRouteTableA:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref DemoVPC
+  PrivateRouteTableB:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref DemoVPC
+  PrivateRouteToInternetA:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableA
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGatewayA
+  PrivateRouteToInternetB:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableB
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGatewayB
+  PrivateSubnetRouteTableAssociationA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnetA
+      RouteTableId: !Ref PrivateRouteTableA
+  PrivateSubnetRouteTableAssociationB:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnetB
+      RouteTableId: !Ref PrivateRouteTableB
+  RstudioIAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Description: RstudioSSMRoleforlogginginviaSSM
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
+      Path: /
+      RoleName: !Ref VPCName
+      Tags: 
+        - Key: Name
+          Value: RstudioIAMRolessm
+  RstudioInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref RstudioIAMRole         
+  EC2LogGroups:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      # DataProtectionPolicy: Json
+      # KmsKeyId: String
+      LogGroupName: !Ref EC2LogGroup
+      RetentionInDays: 14
+  MyCertificate:
+    Type: "AWS::CertificateManager::Certificate"
+    Properties:
+      DomainName: '*.something.com'
+      ValidationMethod: EMAIL
+  LBSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn: InternetGateway
+    Properties:
+      VpcId: !Ref DemoVPC
+      GroupDescription: SG to allow HTTPS to LoadBalancer
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0          
+      Tags:
+        - Key: Name
+          Value: EC2-SG	            
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: InternetGateway
+    Properties:
+      Name: !Ref VPCName
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref LBSecurityGroup
+      Subnets:
+        - !Ref PublicSubnetA
+        - !Ref PublicSubnetB
+###Creates record in Route53 that points back to load balancer        
+  AzureRecordSet:
+    Type: "AWS::Route53::RecordSet"
+    Properties:
+      HostedZoneId: Z0347068XH6039K4T74Z
+      Name: "*.something.com"
+      Type: "A"
+      AliasTarget:
+        DNSName: !GetAtt ApplicationLoadBalancer.DNSName 
+        EvaluateTargetHealth: false
+        HostedZoneId: Z35SXDOTRQ7X7K        
+  DummyTargetGroupPrivate:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 6
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: !Join ['-', [!Ref 'AWS::StackName', 'drop-2']]
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref DemoVPC
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - ApplicationLoadBalancer
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref 'DummyTargetGroupPrivate'
+          Type: 'forward'
+      LoadBalancerArn: !Ref 'ApplicationLoadBalancer'
+      Port: 80
+      Protocol: HTTP
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: !Ref VPCName
+      # CapacityProviders:
+      #   - FARGATE
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+      Configuration:
+        ExecuteCommandConfiguration:
+          Logging: DEFAULT
+      ServiceConnectDefaults:
+        Namespace: !Ref VPCName
+  # ECS Resources
+  # ECSCluster:
+  #   Type: AWS::ECS::Cluster
+
+  # A security group for the EC2 hosts that will run the containers.
+  # Two rules, allowing network traffic from a public facing load
+  # balancer and from other hosts in the security group.
+  #
+  # Remove any of the following ingress rules that are not needed.
+  # If you want to make direct requests to a container using its
+  # public IP address you'll need to add a security group rule
+  # to allow traffic from all IP addresses.
+  EcsHostSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the ECS hosts that run containers
+      VpcId: !Ref DemoVPC
+  # EcsSecurityGroupIngressFromPublicALB:
+  #   Type: AWS::EC2::SecurityGroupIngress
+  #   Properties:
+  #     Description: Ingress from the public ALB
+  #     GroupId: !Ref 'EcsHostSecurityGroup'
+  #     IpProtocol: -1
+  #     SourceSecurityGroupId: !Ref 'PublicLoadBalancerSG'
+  EcsSecurityGroupIngressFromPrivateALB:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: ApplicationLoadBalancer
+    Properties:
+      Description: Ingress from the private ALB
+      GroupId: !Ref 'EcsHostSecurityGroup'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'LBSecurityGroup'
+  EcsSecurityGroupIngressFromSelf:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: ApplicationLoadBalancer
+    Properties:
+      Description: Ingress from other containers in the same security group
+      GroupId: !Ref 'EcsHostSecurityGroup'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'EcsHostSecurityGroup'
+
+  # Autoscaling group. This launches the actual EC2 instances that will register
+  # themselves as members of the cluster, and run the docker containers.
+  ECSAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      LaunchConfigurationName: !Ref 'ContainerInstances'
+      MinSize: '1'
+      MaxSize: 2
+      DesiredCapacity: 2
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+    UpdatePolicy:
+      AutoScalingReplacingUpdate:
+        WillReplace: 'true'
+  ContainerInstances:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref 'ECSAMI'
+      SecurityGroups: [!Ref 'EcsHostSecurityGroup']
+      InstanceType: t3.nano
+      IamInstanceProfile: !Ref 'EC2InstanceProfile'
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          echo ECS_CLUSTER=${ECSCluster} >> /etc/ecs/ecs.config
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ECSAutoScalingGroup --region ${AWS::Region}
+  AutoscalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [application-autoscaling.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: service-autoscaling
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+              - 'application-autoscaling:*'
+              - 'cloudwatch:DescribeAlarms'
+              - 'cloudwatch:PutMetricAlarm'
+              - 'ecs:DescribeServices'
+              - 'ecs:UpdateService'
+            Resource: '*'
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles: [!Ref 'EC2Role']
+
+  # Role for the EC2 hosts. This allows the ECS agent on the EC2 hosts
+  # to communciate with the ECS control plane, as well as download the docker
+  # images from ECR to run on your host.
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ec2.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: ecs-service
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+              - 'ecs:CreateCluster'
+              - 'ecs:DeregisterContainerInstance'
+              - 'ecs:DiscoverPollEndpoint'
+              - 'ecs:Poll'
+              - 'ecs:RegisterContainerInstance'
+              - 'ecs:StartTelemetrySession'
+              - 'ecs:Submit*'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+              - 'ecr:GetAuthorizationToken'
+              - 'ecr:BatchGetImage'
+              - 'ecr:GetDownloadUrlForLayer'
+            Resource: '*'        
+  ECSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: ecs-service
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+              # Rules which allow ECS to attach network interfaces to instances
+              # on your behalf in order for awsvpc networking mode to work right
+              - 'ec2:AttachNetworkInterface'
+              - 'ec2:CreateNetworkInterface'
+              - 'ec2:CreateNetworkInterfacePermission'
+              - 'ec2:DeleteNetworkInterface'
+              - 'ec2:DeleteNetworkInterfacePermission'
+              - 'ec2:Describe*'
+              - 'ec2:DetachNetworkInterface'
+              # Rules which allow ECS to update load balancers on your behalf
+              # with the information sabout how to send traffic to your containers
+              - 'elasticloadbalancing:DeregisterInstancesFromLoadBalancer'
+              - 'elasticloadbalancing:DeregisterTargets'
+              - 'elasticloadbalancing:Describe*'
+              - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
+              - 'elasticloadbalancing:RegisterTargets'
+            Resource: '*'
+  # This is a role which is used by the ECS tasks themselves.
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs-tasks.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: AmazonECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+                # Allow the ECS Tasks to download images from ECR
+                - 'ecr:GetAuthorizationToken'
+                - 'ecr:BatchCheckLayerAvailability'
+                - 'ecr:GetDownloadUrlForLayer'
+                - 'ecr:BatchGetImage'
+                # Allow the ECS tasks to upload logs to CloudWatch
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ['', [!Ref VPCName, ExecutionRole]]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'              
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['', [/ecs/, !Ref VPCName, TaskDefinition]]              
+###Task Definition to publish an app in ECS Fargate
+  # TaskDefinition:
+  #   Type: AWS::ECS::TaskDefinition
+  #   # Makes sure the log group is created before it is used.
+  #   DependsOn: LogGroup
+  #   Properties:
+  #     # Name of the task definition. Subsequent versions of the task definition are grouped together under this name.
+  #     Family: !Join ['', [!Ref VPCName, TaskDefinition]]
+  #     # awsvpc is required for Fargate
+  #     NetworkMode: awsvpc
+  #     RequiresCompatibilities:
+  #       - FARGATE
+  #     Cpu: 256
+  #     Memory: 0.5GB
+  #     # A role needed by ECS.
+  #     # "The ARN of the task execution role that containers in this task can assume. All containers in this task are granted the permissions that are specified in this role."
+  #     # "There is an optional task execution IAM role that you can specify with Fargate to allow your Fargate tasks to make API calls to Amazon ECR."
+  #     ExecutionRoleArn: !Ref ExecutionRole
+  #     # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
+  #     TaskRoleArn: !Ref ECSTaskExecutionRole
+  #     ContainerDefinitions:
+  #       - Name: !Ref VPCName
+  #         Image: '098789448788.dkr.ecr.us-east-1.amazonaws.com/routlierapp'
+  #         PortMappings:
+  #           - ContainerPort: 3838
+  #         # Send logs to CloudWatch Logs
+  #         LogConfiguration:
+  #           LogDriver: awslogs
+  #           Options:
+  #             awslogs-region: !Ref AWS::Region
+  #             awslogs-group: !Ref LogGroup
+  #             awslogs-stream-prefix: ecs
+###ECS Service
+  # Service:
+  #   Type: AWS::ECS::Service
+  #   # This dependency is needed so that the load balancer is setup correctly in time
+  #   DependsOn:
+  #     - Listener
+  #   Properties: 
+  #     ServiceName: !Ref VPCName
+  #     Cluster: !Ref ECSCluster
+  #     TaskDefinition: !Ref TaskDefinition
+  #     DeploymentConfiguration:
+  #       MinimumHealthyPercent: 100
+  #       MaximumPercent: 200
+  #     DesiredCount: 1
+  #     # This may need to be adjusted if the container takes a while to start up
+  #     HealthCheckGracePeriodSeconds: 30
+  #     LaunchType: FARGATE
+  #     NetworkConfiguration: 
+  #       AwsvpcConfiguration:
+  #         # change to DISABLED if you're using private subnets that have access to a NAT gateway
+  #         AssignPublicIp: DISABLED
+  #         Subnets:
+  #           - !Ref PrivateSubnetA
+  #           - !Ref PrivateSubnetB
+  #         SecurityGroups:
+  #           - !Ref ContainerSecurityGroup
+  #     LoadBalancers:
+  #       - ContainerName: !Ref VPCName
+  #         ContainerPort: 3838
+  #         TargetGroupArn: !Ref TargetGroupEcs
+  # TargetGroupEcs:
+  #   Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  #   DependsOn:
+  #     - Listener    
+  #   Properties:
+  #     Name: !Join ['',['ecs',!Ref VPCName]]
+  #     HealthCheckIntervalSeconds: 10
+  #     # will look for a 200 status code by default unless specified otherwise
+  #     HealthCheckPath: /
+  #     HealthCheckTimeoutSeconds: 5
+  #     UnhealthyThresholdCount: 2
+  #     HealthyThresholdCount: 2
+  #     Name: !Ref VPCName
+  #     Port: 3838
+  #     Protocol: HTTP
+  #     TargetGroupAttributes:
+  #       - Key: deregistration_delay.timeout_seconds
+  #         Value: 60 # default is 300
+  #     TargetType: ip
+  #     VpcId: !Ref DemoVPC          
+  # ContainerSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: !Join ['', [!Ref VPCName, ContainerSecurityGroup]]
+  #     VpcId: !Ref DemoVPC
+  #     SecurityGroupIngress:
+  #       - IpProtocol: tcp
+  #         FromPort: 3838
+  #         ToPort: 3838
+  #         SourceSecurityGroupId: !Ref LBSecurityGroup          
+Outputs:      
+  VPCId:
+    Description: vpc id
+    Value: !Ref DemoVPC
+  PublicSubnetA:
+    Description: SubnetId of public subnet A
+    Value: !Ref PublicSubnetA
+  PublicSubnetB:
+    Description: SubnetId of public subnet B
+    Value: !Ref PublicSubnetB
+  PrivateSubnetA:
+    Description: SubnetId of private subnet A
+    Value: !Ref PrivateSubnetA
+  PrivateSubnetB:
+    Description: SubnetId of private subnet B
+    Value: !Ref PublicSubnetB
