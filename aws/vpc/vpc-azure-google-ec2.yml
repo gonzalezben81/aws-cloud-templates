@@ -327,8 +327,8 @@ Resources:
             AuthorizationEndpoint: 'https://login.microsoftonline.com/c0dc2369-a446-4608-bdda-d5d5664956f1/oauth2/v2.0/authorize'
             TokenEndpoint: 'https://login.microsoftonline.com/c0dc2369-a446-4608-bdda-d5d5664956f1/oauth2/v2.0/token'
             UserInfoEndpoint: 'https://graph.microsoft.com/oidc/userinfo'
-            ClientId: '169c4180-7683-407d-a136-1186969277c0'
-            ClientSecret: 'vr08Q~t0er717XwsMcM~kczYa3rLpc6SPyDmVdtd'
+            ClientId: '<client-id>'
+            ClientSecret: '<client-secret>'
           Order: 1
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
