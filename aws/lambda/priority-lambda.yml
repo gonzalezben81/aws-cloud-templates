@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Priority Lambda Number
+Parameters:
+  ListenerArn:
+    Description: Testing
+    Type: String
+    Default: 'update-please'
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref AWS::StackName
+      Description: Lambda Function with code to return priority number for load balancer listener
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.9
+      Timeout: 600
+      Environment:
+        Variables:
+          listener_arn: !Ref ListenerArn
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          import os
+          ###Retrieve the listener arn from the CF template parameter
+          listener_arn = os.getenv('listener_arn')
+          ###Create empty list
+          priority_number = []
+          ###Set client to load balancer
+          client = boto3.client('elbv2')
+          try:
+              def lambda_handler(event, context):
+                if event['RequestType'] == "Create":
+                  ###Get listener arn information
+                  listener_rules = client.describe_rules(ListenerArn=listener_arn)
+                  for rule in listener_rules['Rules']:
+                    ###Print a list of the Priority Rules in the Load Balancer.
+                    if rule['Priority'] == "default":
+                    ###If the priority is default set it to the number 0
+                      rule['Priority'] = 0
+                    ###Save the priority numbers and append them to a new list as integers
+                    x = int(rule['Priority'])
+                    priority_number.append(x)
+                    ###Find the max number in the list and save it to max_number
+                    max_number = max(priority_number)
+                    ###Add one to the max number
+                    max_number+=1
+                    ###Return the max number +1
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS,{'PriorityRule': max_number})
+                  return
+          ###If there is an error send it back to the CF template console
+          except Exception as e:
+            cfnresponse.send(event, context, cfnresponse.FAILED,{'Message',str(e)})
+  PriorityRule:
+    Type: AWS::CloudFormation::CustomResource
+    Version: "1.0"
+    Properties:
+      ServiceToken: !GetAtt LambdaFunction.Arn
+Outputs:
+  PriorityLoadBalancerRule:
+    Value: !GetAtt PriorityRule.PriorityRule 
