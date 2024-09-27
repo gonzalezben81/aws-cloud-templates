@@ -8,7 +8,7 @@ Parameters:
       - "disable"
   OrganizationId:
     Type: String
-    Default: "o-5c0eu74as7"
+    Default: "update"
     Description: "The AWS Organization ID (or Organizational Unit ID) to share the Transit Gateway with."
 
 Resources:
