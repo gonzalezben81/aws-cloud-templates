@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  TransitGatewayId:
+    Type: String
+    Default: "update"
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+  SubnetIds:
+    Type: 'List<AWS::EC2::Subnet::Id>'
+    Description: "Subnet IDs"
+
+Resources:
+  VPCTransitGatewayAttachment:
+    Type: "AWS::EC2::TransitGatewayVpcAttachment"
+    Properties:
+      TransitGatewayId: !Ref TransitGatewayId
+      VpcId: !Ref VpcId
+      SubnetIds: !Ref SubnetIds
+      Tags:
+        - Key: CFStackId
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: !Join ["-", [!Ref 'AWS::StackName', "TGW-Attachment"]]
+
+Outputs:
+  VPCTransitGatewayAttachmentId:
+    Value: !Ref VPCTransitGatewayAttachment
+    Description: "The ID of the created Transit Gateway Attachment."
