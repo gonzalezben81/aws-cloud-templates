@@ -1,0 +1,39 @@
+### References: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/peer-with-vpc-in-another-account.html
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC Cross Account Role.
+Parameters:
+  PrincipalOrgPath:
+  Type: String
+  Description: AWS Principal Org Path
+  Default: "o-/r-/ou-/*"
+Resources:  
+  peerRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Principal:
+              AWS: "*"
+            Action:
+              - "sts:AssumeRole"
+            Effect: Allow
+            Condition:
+              ForAnyValue:StringLike:
+                aws:PrincipalOrgPaths:
+                  - !Ref PrincipalOrgPath
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 'ec2:AcceptVpcPeeringConnection'
+                  - 'ec2:CreateVpcPeeringConnection'
+                Resource: '*'
+                
+Output:
+  peerRoleArn:
+    Description: VPC Peering Role Arn
+    Value: !GetAtt peerRole.Arn
