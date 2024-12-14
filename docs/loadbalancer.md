@@ -57,8 +57,8 @@ Resources:
   MyCertificate:
     Type: "AWS::CertificateManager::Certificate"
     Properties:
-    ###This format allows for several sub-domains to wildcard with dsegonzo.us or whatever top-level-domain tld you want to use
-      DomainName: 'dsegonzo.us' ###'*.something.com'
+    ###This format allows for several sub-domains to wildcard with example.com top-level-domain tld you want to use
+      DomainName: '*.something.com'
       ValidationMethod: DNS       
   Listener:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
