@@ -5,6 +5,8 @@ nav_order: 7
 ---
 
 
+### AWS SSO Templates
+
 ```yml
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
