@@ -64,7 +64,7 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
       Certificates:
-      - CertificateArn: !Ref MyCertificate #'arn:aws:acm:us-east-1:098789448788:certificate/48cabe30-c89f-4517-9daf-293bc713bd15' #!Ref MyCertificate
+      - CertificateArn: !Ref MyCertificate
       DefaultActions:
         - Type: 'fixed-response' # 1. Authenticate with OICD      
           FixedResponseConfig:
