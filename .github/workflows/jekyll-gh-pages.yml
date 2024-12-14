@@ -9,7 +9,7 @@ name: Deploy aws cloud templates docs
 on:
   push:
     branches:
-      - "["main"]
+      - [main]
     paths:
       - "docs/**"    
 
