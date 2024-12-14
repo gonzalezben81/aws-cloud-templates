@@ -1,5 +1,5 @@
-title: Github Actions & Hashicorp Vault
-description: Brief how to guide on using Hashicorp Vault with Github Actions Roles!
+title: AWS Cloud Templates
+description: AWS Cloud Templates
 theme: just-the-docs
 
 url: https://gonzalezben81.github.io
@@ -68,7 +68,7 @@ search:
 
 
 # Color scheme currently only supports "dark", "light"/nil (default), or a custom scheme that you define
-color_scheme: custom
+# color_scheme: custom
 
 footer_content: 'Copyright &copy; 2024 Ben Gonzalez. Distributed by an <a href="https://github.com/gonzalezben81/vault-github-actions/tree/main/LICENSE.txt">MIT license.</a> <a href="https://www.netlify.com/">This site is powered by Netlify.</a>'
 
