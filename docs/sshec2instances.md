@@ -6,6 +6,10 @@ nav_order: 9
 
 ### How to ssh between 2 ec2 instances
 
+The following instructions show you how to `ssh` between two different ec2 instances. The instances can be in the same VPC, different VPCs in the same account, or VPCs in different accounts. 
+
+__Note: If the ec2 instances are in a different VPCs or different accounts you will want to setup the necessary infrastructure e.g. transit-gateway, vpc peering, security groups etc. to allow communication between the two ec2 instances__
+
 + Server One is the source
 
 + Server Two is the destination
