@@ -11,7 +11,7 @@ nav_order: 9
 
 + Server Two is the destination
 
-The ec2 instances can be 2 different flavors of linux, e.g. Ubuntu or amazon linux.
+The ec2 instances can be two different flavors of linux, e.g. Ubuntu or Amazon Linux.
 
 Note: You will want to perform these steps on both servers as two way trust will need to be established for the SSH to work.
 
