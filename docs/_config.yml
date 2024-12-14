@@ -12,7 +12,7 @@ defaults:
       layout: "default"
 
 aux_links:
-  Vault GitHub Actions Rep: https://github.com/gonzalezben81/aws-cloud-templates.git
+  AWS Cloud Templates Repo: https://github.com/gonzalezben81/aws-cloud-templates.git
   
 # Makes Aux links open in a new tab. Default is false
 aux_links_new_tab: true  
