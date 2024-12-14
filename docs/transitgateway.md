@@ -9,7 +9,12 @@ nav_order: 8
 
 A transit gateway is a hup and spoke model that allows you to more easily peer VPCs together. This could be VPCs in a single account or in multiple accounts. While VPC Peering is very reliable and straightforward, as the number of VPCs being peered together increases; the complexity of the peering increases. 
 
-Enter transit gateway.
+Enter the transit gateway to help streamline and solve complexity problems. 
+
+The example below has the following features:
+
++ Auto accept shared attachments
++ AWS Organization and Organizational Unit sharing
 
 ```yml
 AWSTemplateFormatVersion: "2010-09-09"
