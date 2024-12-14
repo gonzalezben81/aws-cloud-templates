@@ -1,6 +1,6 @@
 ---
 layout: default
-title: ecr
+title: ECR
 nav_order: 4
 ---
 

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: iam
+title: IAM
 nav_order: 7
 ---
 

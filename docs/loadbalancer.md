@@ -1,6 +1,6 @@
 ---
 layout: default
-title: loadbalancer
+title: LoadBalancer
 nav_order: 6
 ---
 
