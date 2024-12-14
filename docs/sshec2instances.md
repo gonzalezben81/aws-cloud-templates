@@ -4,7 +4,6 @@ title: SSH Between Two ec2 Instances
 nav_order: 9
 ---
 
-
 ### How to ssh between 2 ec2 instances
 
 + Server One is the source
