@@ -7,9 +7,9 @@ nav_order: 9
 
 ### How to ssh between 2 ec2 instances
 
-Server One is the source
++ Server One is the source
 
-Server Two is the destination
++ Server Two is the destination
 
 The ec2 instances can be 2 different flavors of linux, e.g. Ubuntu or amazon linux.
 
