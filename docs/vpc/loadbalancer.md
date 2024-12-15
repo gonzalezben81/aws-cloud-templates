@@ -1,7 +1,9 @@
 ---
 layout: default
 title: LoadBalancer
-nav_order: 6
+parent: Virtual Private Cloud
+nav_order: 2
+layout: default
 ---
 
 ### AWS Loadbalancer Templates
