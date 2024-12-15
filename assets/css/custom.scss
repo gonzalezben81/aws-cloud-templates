@@ -1,1 +1,4 @@
-$link-color: $green-000: #41d693 !default;;
+
+{% include css/just-the-docs.scss.liquid color_scheme="custom" %}
+
+$link-color: $green-000: #41d693 !default;
