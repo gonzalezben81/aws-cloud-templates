@@ -1,8 +1,8 @@
 ---
 layout: default
 title: LoadBalancer
-parent: Virtual Private Cloud
-nav_order: 2
+parent: Load Balancer
+nav_order: 1
 layout: default
 ---
 
