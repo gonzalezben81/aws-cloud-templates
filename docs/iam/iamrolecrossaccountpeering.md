@@ -8,7 +8,7 @@ nav_order: 4
 ### IAM Role Cross Account VPC Peering
 
 
-The following is an IAM role that allows any principal in a AWS account to accept a VPC peering connection. The condition in the policy only allows the principals that are part of the same AWS Organization or Organizaiton Unit (OU) to accept the peering connection.
+The following is an IAM role that allows any principal in a AWS account to accept a VPC peering connection. The condition in the policy only allows the principals that are part of the same AWS Organization or Organization Unit (OU) to accept the peering connection.
 
 
 ```yaml
