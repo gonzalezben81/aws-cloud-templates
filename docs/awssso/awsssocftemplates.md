@@ -6,7 +6,7 @@ nav_order:
 ---
 
 
-### AWS SSO CF Templates Shell Script
+### AWS SSO CF Templates
 
 
 ```bash
