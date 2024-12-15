@@ -1,7 +1,9 @@
 ---
 layout: default
 title: ECR
-nav_order: 4
+parent: AWS Cloud Containerization
+nav_order: 1
+layout: default
 ---
 
 ### AWS ECR Templates

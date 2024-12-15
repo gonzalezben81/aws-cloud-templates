@@ -1,7 +1,9 @@
 ---
 layout: default
 title: Fargate
-nav_order: 9
+parent: AWS Cloud Containerization
+nav_order: 2
+layout: default
 ---
 
 
