@@ -1,7 +1,7 @@
 ---
 layout: default
 title: IAM Role Cross Account VPC Peering
-parent: Identity Access Management
+parent: Identity & Access Management
 nav_order: 4
 ---
 

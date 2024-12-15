@@ -1,7 +1,7 @@
 ---
 layout: default
 title: IAM
-parent: Identity Access Management
+parent: Identity & Access Management
 nav_order: 1
 ---
 

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Hashicorp Vault IAM User
-parent: Identity Access Management
+parent: Identity & Access Management
 nav_order: 2
 ---
 

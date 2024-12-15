@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Hashicorp Vault IAM Role
-parent: Identity Access Management
+parent: Identity & Access Management
 nav_order: 3
 ---
 
