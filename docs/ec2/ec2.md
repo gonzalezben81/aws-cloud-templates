@@ -1,7 +1,8 @@
 ---
 layout: default
 title: EC2: Elastic Compute Cloud
-nav_order: 3
+parent: ec2 Elastic Compute Cloud
+nav_order: 1
 ---
 
 ### AWS ec2 Templates

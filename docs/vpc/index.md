@@ -4,14 +4,6 @@ title: Virtual Private Cloud
 nav_order: 2
 ---
 
-# Navigation
+# Virtual Private Cloud
 
-The default page layout supports various navigation features:
-
-* a **main navigation** panel, highlighting the currently selected page;
-* a list of **auxiliary** links, shown on all pages;
-* lists of **breadcrumbs**, shown on all except top level pages;
-* optional lists of links to **child pages** (so-called 'tables of contents'); and
-* section heading links for **in-page navigation**, with an optional **back-to-top** link.
-
-See the following pages for how to specify these features, with illustrative examples.
+The AWS VPC allows you to isolate resources inside of a secure environment. Utilizing a VPC you can create interconnected tools that allow you to work public facing applications while protecting your data inside of a VPC.

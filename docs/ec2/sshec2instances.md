@@ -1,7 +1,8 @@
 ---
 layout: default
 title: SSH Between Two ec2 Instances
-nav_order: 9
+parent: ec2 Elastic Compute Cloud
+nav_order: 3
 ---
 
 ### How to ssh between 2 ec2 instances

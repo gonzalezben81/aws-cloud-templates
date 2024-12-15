@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Auto Scaling ec2
-nav_order: 10
+parent: ec2 Elastic Compute Cloud
+nav_order: 2
 ---
 
 ### Auto Scaling ec2 instance
