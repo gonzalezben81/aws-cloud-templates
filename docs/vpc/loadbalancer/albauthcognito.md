@@ -1,7 +1,8 @@
 ---
 layout: default
 title: ALB Authetnication Cognito
-nav_order: 12
+parent: Load Balancer
+nav_order: 2
 ---
 
 
