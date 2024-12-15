@@ -82,5 +82,10 @@ kramdown:
     block:
       line_numbers: false
       
-ga-tracking: G-N1JV4PDVW6
-ga_tracking_anonymize_ip: true 
+# ga-tracking: G-N1JV4PDVW6
+# ga_tracking_anonymize_ip: true
+
+# Google Analytics
+google_analytics:
+  enabled: true
+  id: G-N1JV4PDVW6  # Replace with your Measurement ID
