@@ -1,6 +1,6 @@
 ---
 layout: default
-title: EC2: Elastic Compute Cloud
+title: EC2
 parent: ec2 Elastic Compute Cloud
 nav_order: 1
 ---
