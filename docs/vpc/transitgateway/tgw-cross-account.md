@@ -1,8 +1,8 @@
 ---
 layout: default
 title: TGW Cross Account
-parent: Virtual Private Cloud
-nav_order: 3
+parent: Transit Gateway 
+nav_order: 2
 ---
 
 ### Transit Gateway (TGW) Cross Account

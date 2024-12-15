@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Load Balancer
+title: Transit Gateway 
 parent: Virtual Private Cloud
 nav_order: 2
 ---
 
-### Load Balancer
+### Transit Gateway
