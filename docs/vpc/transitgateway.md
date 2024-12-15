@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Transit Gateway
-nav_order: 8
+parent: Virtual Private Cloud
+nav_order: 2
 ---
 
 
