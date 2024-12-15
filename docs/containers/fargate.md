@@ -7,7 +7,7 @@ layout: default
 ---
 
 
-### Fargate ECS (Elastict Container Service)
+### Fargate ECS (Elastic Container Service)
 
 
 ```yml

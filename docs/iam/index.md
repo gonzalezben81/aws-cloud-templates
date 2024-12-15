@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Identity Access Management
+title: Identity & Access Management
 nav_order: 6
 ---
 
