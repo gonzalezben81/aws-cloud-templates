@@ -1,6 +1,6 @@
 ---
 layout: default
-title: AWS SSO CF Templates Shell Script
+title: AWS SSO CF Templates
 parent: AWS SSO
 nav_order: 
 ---
