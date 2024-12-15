@@ -68,7 +68,7 @@ search:
 
 
 # Color scheme currently only supports "dark", "light"/nil (default), or a custom scheme that you define
-color_scheme: custom
+color_scheme: light
 
 # Show navigation error report
 nav_error_report: true # default is false/nil.
