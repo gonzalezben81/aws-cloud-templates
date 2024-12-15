@@ -32,7 +32,7 @@ do
        --template-body "file://$template_file" \
        --profile "$profile"
 
-    echo "Success!!! Cloud Formatin Launched"
+    echo "Success!!! Cloud Formation Launched"
 done
 
 
