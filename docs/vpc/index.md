@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Virtual Private Cloud (VPC)
+title: Virtual Private Cloud
 nav_order: 2
 ---
 

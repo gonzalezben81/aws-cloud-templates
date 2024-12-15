@@ -1,8 +1,8 @@
 ---
-layout: default
 title: VPC
-parent: Virtual Private Cloud (VPC)
-nav_order: 2
+parent: Virtual Private Cloud
+nav_order: 1
+layout: default
 ---
 
 ### AWS VPC Templates
