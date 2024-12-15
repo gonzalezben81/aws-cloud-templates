@@ -1,7 +1,8 @@
 ---
 layout: default
 title: AWS-SSO
-nav_order: 7
+parent: AWS SSO
+nav_order: 1
 ---
 
 

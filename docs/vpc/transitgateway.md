@@ -8,7 +8,7 @@ nav_order: 2
 
 ### Transit Gateway
 
-A transit gateway is a hup and spoke model that allows you to more easily peer VPCs together. This could be VPCs in a single account or in multiple accounts. While VPC Peering is very reliable and straightforward, as the number of VPCs being peered together increases; the complexity of the peering increases. 
+A transit gateway is a hub and spoke model that allows you to more easily peer VPCs together. This could be VPCs in a single account or in multiple accounts. While VPC Peering is very reliable and straightforward, as the number of VPCs being peered together increases; the complexity of the peering increases. 
 
 Enter the transit gateway to help streamline and solve complexity problems. 
 
