@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Virtual Private Cloud
-nav_order: 1
+nav_order: 2
 ---
 
 # Virtual Private Cloud
