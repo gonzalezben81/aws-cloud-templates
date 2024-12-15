@@ -7,6 +7,21 @@ nav_order: 7
 
 ### AWS SSO Templates
 
+The following template adds an `admin` level user to an AWS Account in your AWS Organization. The permission set attached to the user has admin level permissions and gives the user near root level access. The output of the cloud formation template gives the assignment status and the arn of the permission set for this particular user. 
+
+*Note: The user must exist in your OIDC provider e.g. Microsoft Entra ID (Azure).*
+
+Parameters needed:
+
++ AWS Account ID
++ User Email
++ Permission Set Name
++ SSO Instance Arn
++ Identity Store ID
+
+Outputs:
++ Permission Set Arn
+
 ```yml
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
