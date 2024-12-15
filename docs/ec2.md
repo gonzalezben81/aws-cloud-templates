@@ -7,6 +7,17 @@ nav_order: 3
 ### AWS ec2 Templates
 
 
+The following template creates a basic ec2 instance. 
+
+
+
+List of packages installed in the ec2 (can be removed):
++ R
++ python3
++ git
++ docker
+
+
 Basic ec2 Instance:
 
 ```yaml
