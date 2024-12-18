@@ -27,6 +27,6 @@ jobs:
     - name: Describe ec2 instances
       run: |
        aws ec2 describe-instances
-    - name: Describe ec2 instances
-      run: |
-       aws s3 ls       
+    # - name: Describe ec2 instances
+    #   run: |
+    #    aws s3 ls       
