@@ -61,6 +61,11 @@ Outputs:
     Value: !GetAtt Role.Arn 
 ```
 
+
+### Example policies to attach to AWS GitHub Actions OIDC Role
+
+*Note: If you see the following `An error occurred (AccessDenied) when calling the ListBuckets operation: User: arn:aws:sts::<account-number>:assumed-role/<role-name>/GitHubActions is not authorized to perform: s3:ListAllMyBuckets because no identity-based policy allows the s3:ListAllMyBuckets action` your policy has failed and you need to update the policy for the role in AWS.*
+
 #### References
 
 [GitHub OIDC References](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services)
