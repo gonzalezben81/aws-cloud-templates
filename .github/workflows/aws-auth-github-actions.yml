@@ -24,6 +24,6 @@ jobs:
       with:
         aws-region: us-east-1
         role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS }}
-   - name: Describe ec2 instances
-     run: |
-      aws ec2 describe-instances
+    - name: Describe ec2 instances
+      run: |
+       aws ec2 describe-instances
