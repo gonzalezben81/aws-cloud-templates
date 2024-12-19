@@ -73,7 +73,9 @@ Outputs:
 
 > *Note: If you see the following: An error occurred (AccessDenied) when calling the ListBuckets operation: User: arn:aws:sts::<account-number>:assumed-role/<role-name>/GitHubActions is not authorized to perform: s3:ListAllMyBuckets because no identity-based policy allows the s3:ListAllMyBuckets action: your policy has failed and you need to update the policy for the role in AWS.*
 
-### Minimal AWS GitHub Actions :rocket: :octocat:
+### Minimal AWS GitHub Actions ![Octocat](https://github.githubassets.com/images/icons/emoji/octocat.png) :rocket:
+
+
 
 
 
