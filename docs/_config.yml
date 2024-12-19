@@ -94,6 +94,7 @@ plugins:
   - jemoji
 
 kramdown:
+  input: GFM
   syntax_highlighter_opts:
     block:
       line_numbers: false
