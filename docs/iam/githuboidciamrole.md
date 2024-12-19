@@ -4,7 +4,6 @@ title: GitHub OIDC IAM Role
 parent: Identity & Access Management
 nav_order: 5
 ---
-
 {:toc}
 
 ### AWS GitHub OIDC IAM Role Template
@@ -73,13 +72,13 @@ Outputs:
 
 > *Note: If you see the following: An error occurred (AccessDenied) when calling the ListBuckets operation: User: arn:aws:sts::<account-number>:assumed-role/<role-name>/GitHubActions is not authorized to perform: s3:ListAllMyBuckets because no identity-based policy allows the s3:ListAllMyBuckets action: your policy has failed and you need to update the policy for the role in AWS.*
 
-### Minimal AWS GitHub :github: Actions ![Octocat](https://github.githubassets.com/images/icons/emoji/octocat.png) :rocket:
+### ![Octocat](https://github.githubassets.com/images/icons/emoji/octocat.png) Minimal AWS GitHub
 
 
 
 
 
-The following minimal GitHub Actions example shows how you can login to AWS via the GitHub OIDC role you setup with the above template. You can place the AWS IAM Role Arn as a `secret` in the GitHub environment an retrieve it via the `${{ secrets.secret-name }}` from the GitHub secrets in the repo. Additonally this example simply describes the ec2 instances available in `us-east-1` region in AWS. Simply update the region to your specific region to utilize the AWS CLI commands in that particular region.
+The following minimal GitHub Actions example shows how you can login to AWS via the GitHub OIDC role you setup with the above template. You can place the AWS IAM Role Arn as a `secret` in the GitHub environment and retrieve it via the ```${{ secrets.secret-name }}``` from the GitHub secrets in the repo. Additonally this example simply describes the ec2 instances available in `us-east-1` region in AWS. Simply update the region to your specific region to utilize the AWS CLI commands in that particular region.
 
 Currently this GitHub actions workflow is triggered via a push to the `main` branch and also allows for a manual trigger via `workflow_dispatch`.
 
