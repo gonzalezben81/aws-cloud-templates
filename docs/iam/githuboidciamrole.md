@@ -75,6 +75,8 @@ Outputs:
 
 ### Minimal AWS GitHub Actions
 
+This documentation is awesome! :rocket:
+
 :octocat:
 
 
