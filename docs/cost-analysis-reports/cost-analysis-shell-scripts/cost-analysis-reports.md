@@ -1,11 +1,14 @@
 ---
-title: AWS Cost Analysis Reports
+title: AWS Cost Analysis Reports - Usage Type
 parent: Cost Analysis Reports
 nav_order: 1
 layout: default
 ---
 
-### AWS VPC Templates
+### AWS Cost Analysis Scripts
+
+The following shell script allows you to retrieve unblended costs of the AWS accounts in your AWS Org. This allows you to see the costs of each AWS account and gives a breakdown of the usage type e.g. (Nat Gateway Hours, LoadBalancers, DataTransfer Out). This saves the cost data to a csv file and allows you to easily filter the data to find costs easily.
+
 
 Cost Analysis Shell Script:
 
