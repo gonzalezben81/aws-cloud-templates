@@ -1,5 +1,5 @@
 ---
-title: Cost Analysis Reports
+title: AWS Cost Analysis Reports
 parent: Cost Analysis Reports
 nav_order: 1
 layout: default
