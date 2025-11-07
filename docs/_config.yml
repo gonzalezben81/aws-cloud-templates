@@ -4,6 +4,7 @@ theme: just-the-docs
 
 url: https://gonzalezben81.github.io/aws-cloud-templates/
 
+
 defaults:
   - scope:
       path: "docs" # an empty string here means all files in the project
