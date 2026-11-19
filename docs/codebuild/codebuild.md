@@ -8,7 +8,7 @@ nav_order: 1
 ### Codebuild Project Build
 
 
-```
+```yaml
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Minimal AWS CodeBuild project connected to GitHub via CodeConnections
 
@@ -169,3 +169,4 @@ Outputs:
   CodeBuildProjectName:
     Description: Name of the CodeBuild project
     Value: !Ref CodeBuildProject      
+```
